@@ -1925,6 +1925,7 @@ input_dcs_dispatch(struct input_ctx *ictx)
 {
 	const char	prefix[] = "tmux;";
 	const u_int	prefix_len = (sizeof prefix) - 1;
+  u_char *p;
 
 	if (ictx->flags & INPUT_DISCARD)
 		return (0);
@@ -1937,6 +1938,16 @@ input_dcs_dispatch(struct input_ctx *ictx)
 		screen_write_rawstring(&ictx->ctx,
 		    ictx->input_buf + prefix_len, ictx->input_len - prefix_len);
 	}
+
+  for (p = ictx->input_buf; p != ictx->input_buf + ictx->input_len; p++) {
+    if ((*p >= 0 && *p <= 9) || *p == ';')
+      continue;
+    if (*p != 'q')
+      break;
+    screen_write_sixel(&ictx->ctx,
+          ictx->input_buf, ictx->input_len);
+  }
+
 
 	return (0);
 }
