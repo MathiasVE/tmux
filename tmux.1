@@ -1804,15 +1804,15 @@ If
 .Fl a
 is used, move to the next window with an alert.
 .It Xo Ic pipe-pane
-.Op Fl o
+.Op Fl IOo
 .Op Fl t Ar target-pane
 .Op Ar shell-command
 .Xc
 .D1 (alias: Ic pipep )
-Pipe any output sent by the program in
+Pipe output sent by the program in
 .Ar target-pane
-to a shell command.
-A pane may only be piped to one command at a time, any existing pipe is
+to a shell command or vice versa.
+A pane may only be connected to one command at a time, any existing pipe is
 closed before
 .Ar shell-command
 is executed.
@@ -1824,6 +1824,25 @@ option.
 If no
 .Ar shell-command
 is given, the current pipe (if any) is closed.
+.Pp
+.Fl I
+and
+.Fl O
+specify which of the
+.Ar shell-command
+output streams are connected to the pane:
+with
+.Fl I
+stdout is connected (so anything
+.Ar shell-command
+prints is written to the pane as if it were typed);
+with
+.Fl O
+stdin is connected (so any output in the pane is piped to
+.Ar shell-command ) .
+Both may be used together and if neither are specified,
+.Fl O
+is used.
 .Pp
 The
 .Fl o
@@ -2488,6 +2507,11 @@ Set the time in milliseconds for which
 waits after an escape is input to determine if it is part of a function or meta
 key sequences.
 The default is 500 milliseconds.
+.It Xo Ic exit-empty
+.Op Ic on | off
+.Xc
+If enabled (the default), the server will exit when there are no active
+sessions.
 .It Xo Ic exit-unattached
 .Op Ic on | off
 .Xc

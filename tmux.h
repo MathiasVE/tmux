@@ -404,6 +404,7 @@ enum tty_code_code {
 	TTYC_MS,
 	TTYC_OP,
 	TTYC_REV,
+	TTYC_RGB,
 	TTYC_RI,
 	TTYC_RMACS,
 	TTYC_RMCUP,
@@ -556,6 +557,7 @@ enum utf8_state {
 /* Grid line flags. */
 #define GRID_LINE_WRAPPED 0x1
 #define GRID_LINE_EXTENDED 0x2
+#define GRID_LINE_DEAD 0x4
 
 /* Grid cell data. */
 struct grid_cell {
@@ -1319,6 +1321,13 @@ struct cmd_entry {
 	enum cmd_retval	 (*exec)(struct cmd *, struct cmdq_item *);
 };
 
+/* Status line. */
+struct status_line {
+	struct event	 timer;
+	struct screen	 status;
+	struct screen	*old_status;
+};
+
 /* Client connection. */
 typedef int (*prompt_input_cb)(struct client *, void *, const char *, int);
 typedef void (*prompt_free_cb)(void *);
@@ -1361,10 +1370,7 @@ struct client {
 	struct event	 click_timer;
 	u_int		 click_button;
 
-	struct event	 status_timer;
-	struct screen	 status;
-
-	struct screen	*old_status;
+	struct status_line status;
 
 #define CLIENT_TERMINAL 0x1
 #define CLIENT_LOGIN 0x2
@@ -1589,8 +1595,6 @@ void		 hooks_add(struct hooks *, const char *, struct cmd_list *);
 void		 hooks_copy(struct hooks *, struct hooks *);
 void		 hooks_remove(struct hooks *, const char *);
 struct hook	*hooks_find(struct hooks *, const char *);
-void printflike(4, 5) hooks_run(struct hooks *, struct client *,
-		    struct cmd_find_state *, const char *, ...);
 void printflike(4, 5) hooks_insert(struct hooks *, struct cmdq_item *,
 		    struct cmd_find_state *, const char *, ...);
 
